@@ -58,10 +58,6 @@ ad-campaign-simulator/
 ## ⚡ Quick Start
 
 ### 1. Clone the repository
-```bash
-git clone https://github.com/YOUR_USERNAME/ad-campaign-simulator.git
-cd ad-campaign-simulator
-```
 
 ### 2. Install Python dependencies
 ```bash
