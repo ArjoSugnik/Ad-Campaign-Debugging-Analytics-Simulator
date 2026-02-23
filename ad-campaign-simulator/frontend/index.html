@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ad Campaign Simulator</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- =====================================================
+       SIDEBAR NAVIGATION
+  ====================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">📊</span>
+      <span class="logo-text">AdDebugger</span>
+    </div>
+    <nav>
+      <a href="#" class="nav-link active" data-tab="dashboard">
+        <span>🏠</span> Dashboard
+      </a>
+      <a href="#" class="nav-link" data-tab="campaigns">
+        <span>📋</span> Campaigns
+      </a>
+      <a href="#" class="nav-link" data-tab="create">
+        <span>➕</span> New Campaign
+      </a>
+      <a href="#" class="nav-link" data-tab="diagnostics">
+        <span>🔍</span> Diagnostics
+      </a>
+      <a href="#" class="nav-link" data-tab="analytics">
+        <span>📈</span> Analytics
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="seedData()" class="btn-seed">🌱 Load Demo Data</button>
+    </div>
+  </aside>
+
+  <!-- =====================================================
+       MAIN CONTENT AREA
+  ====================================================== -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <h1 id="page-title">Dashboard</h1>
+      <div class="topbar-actions">
+        <span id="status-indicator" class="status-dot"></span>
+        <span class="status-text">API Connected</span>
+      </div>
+    </header>
+
+    <!-- ALERT BANNER -->
+    <div id="alert-banner" class="alert-banner hidden"></div>
+
+    <!-- =====================================================
+         TAB: DASHBOARD
+    ====================================================== -->
+    <section id="tab-dashboard" class="tab-content active">
+
+      <!-- Summary Cards -->
+      <div class="cards-grid">
+        <div class="card card-blue">
+          <div class="card-icon">📋</div>
+          <div class="card-body">
+            <div class="card-label">Total Campaigns</div>
+            <div class="card-value" id="stat-total">—</div>
+          </div>
+        </div>
+        <div class="card card-green">
+          <div class="card-icon">✅</div>
+          <div class="card-body">
+            <div class="card-label">Healthy</div>
+            <div class="card-value" id="stat-healthy">—</div>
+          </div>
+        </div>
+        <div class="card card-yellow">
+          <div class="card-icon">⚠️</div>
+          <div class="card-body">
+            <div class="card-label">Warnings</div>
+            <div class="card-value" id="stat-warning">—</div>
+          </div>
+        </div>
+        <div class="card card-red">
+          <div class="card-icon">🚨</div>
+          <div class="card-body">
+            <div class="card-label">Critical Issues</div>
+            <div class="card-value" id="stat-critical">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-container">
+          <h3>Campaign Health Distribution</h3>
+          <canvas id="healthPieChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3>Average Metrics Benchmark</h3>
+          <canvas id="metricsBarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Issue Alerts Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🚨 Active Issue Alerts</h3>
+        </div>
+        <div id="issue-alerts-list" class="alerts-list">
+          <p class="empty-state">Loading alerts...</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         TAB: CAMPAIGNS LIST
+    ====================================================== -->
+    <section id="tab-campaigns" class="tab-content">
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>All Campaigns</h3>
+          <button onclick="loadCampaigns()" class="btn btn-outline">🔄 Refresh</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table id="campaigns-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Budget</th>
+                <th>Impressions</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+                <th>CPC</th>
+                <th>Conv. Rate</th>
+                <th>Health</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-tbody">
+              <tr><td colspan="9" class="empty-state">Loading campaigns...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         TAB: CREATE CAMPAIGN
+    ====================================================== -->
+    <section id="tab-create" class="tab-content">
+
+      <div class="panel form-panel">
+        <div class="panel-header">
+          <h3>➕ Create New Campaign</h3>
+        </div>
+
+        <form id="create-campaign-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="camp-name">Campaign Name *</label>
+              <input type="text" id="camp-name" placeholder="e.g. Summer Sale - Google Search" required />
+            </div>
+            <div class="form-group">
+              <label for="camp-budget">Total Budget ($) *</label>
+              <input type="number" id="camp-budget" placeholder="e.g. 5000" min="0" step="0.01" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="camp-impressions">Impressions *</label>
+              <input type="number" id="camp-impressions" placeholder="e.g. 100000" min="0" required />
+              <small>How many times the ad was shown</small>
+            </div>
+            <div class="form-group">
+              <label for="camp-clicks">Clicks *</label>
+              <input type="number" id="camp-clicks" placeholder="e.g. 2000" min="0" required />
+              <small>How many people clicked</small>
+            </div>
+            <div class="form-group">
+              <label for="camp-conversions">Conversions *</label>
+              <input type="number" id="camp-conversions" placeholder="e.g. 80" min="0" required />
+              <small>Purchases, sign-ups, etc.</small>
+            </div>
+          </div>
+
+          <!-- Auto-calculated metrics preview -->
+          <div class="metrics-preview">
+            <h4>📊 Auto-Calculated Metrics Preview</h4>
+            <div class="metrics-preview-grid">
+              <div class="metric-preview-item">
+                <span class="metric-label">CTR</span>
+                <span class="metric-val" id="preview-ctr">—</span>
+              </div>
+              <div class="metric-preview-item">
+                <span class="metric-label">CPC</span>
+                <span class="metric-val" id="preview-cpc">—</span>
+              </div>
+              <div class="metric-preview-item">
+                <span class="metric-label">Conv. Rate</span>
+                <span class="metric-val" id="preview-conv">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Save Campaign</button>
+            <button type="button" onclick="clearForm()" class="btn btn-outline">✕ Clear</button>
+          </div>
+        </form>
+
+        <!-- Success/Error message -->
+        <div id="form-message" class="form-message hidden"></div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         TAB: DIAGNOSTICS
+    ====================================================== -->
+    <section id="tab-diagnostics" class="tab-content">
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🔍 Campaign Diagnostics</h3>
+          <div class="panel-header-actions">
+            <select id="diagnose-select" class="select-input">
+              <option value="">Select a campaign...</option>
+            </select>
+            <button onclick="runDiagnostics()" class="btn btn-primary">Run Diagnostics</button>
+          </div>
+        </div>
+
+        <div id="diagnostics-result" class="diagnostics-empty">
+          <div class="empty-icon">🔍</div>
+          <p>Select a campaign above and click "Run Diagnostics" to analyze its performance.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         TAB: ANALYTICS
+    ====================================================== -->
+    <section id="tab-analytics" class="tab-content">
+
+      <div class="charts-row">
+        <div class="chart-container tall">
+          <h3>CTR by Campaign</h3>
+          <canvas id="ctrChart"></canvas>
+        </div>
+        <div class="chart-container tall">
+          <h3>Conversion Rate by Campaign</h3>
+          <canvas id="convChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-container full">
+        <h3>Budget vs Clicks by Campaign</h3>
+        <canvas id="budgetChart"></canvas>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Campaign Detail Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
